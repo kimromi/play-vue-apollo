@@ -2,8 +2,7 @@
   <div class="repositories">
     <h2>Repository.vue(リポジトリ情報)</h2>
 
-    <div v-if="$apollo.loading">Loading...</div>
-    <h3 v-else-if="repository">
+    <h3 v-if="repository">
       name: {{ upcasedName() }}<br />
       createdAt: {{ repository.createdAt }}
     </h3>
@@ -12,34 +11,26 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue, Prop } from "vue-property-decorator";
 import gql from "graphql-tag";
-import { GetRepository_repository } from "./__generated__/GetRepository";
+import { RepositoryFields } from "./__generated__/RepositoryFields";
 
-@Component({
-  apollo: {
-    repository: {
-      query: gql`
-        query GetRepository($owner: String!, $name: String!) {
-          repository(owner: $owner, name: $name) {
-            id
-            name
-            createdAt
-          }
-        }
-      `,
-      variables: {
-        owner: "kimromi",
-        name: "play-vue-apollo"
-      }
-    }
+export const fragment = gql`
+  fragment RepositoryFields on Repository {
+    id
+    name
+    createdAt
   }
-})
+`;
+
+@Component({})
 export default class Viewer extends Vue {
-  private repository?: GetRepository_repository;
+  @Prop() repository?: RepositoryFields;
 
   upcasedName(): string {
-    if (!this.repository) return "";
+    if (!this.repository || !this.repository.name) {
+      return "";
+    }
     return this.repository.name.toUpperCase();
   }
 }

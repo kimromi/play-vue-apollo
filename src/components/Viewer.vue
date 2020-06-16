@@ -2,31 +2,26 @@
   <div class="viewer">
     <h2>Viewer.vue(ログインユーザー情報)</h2>
 
-    <div v-if="$apollo.loading">Loading...</div>
-    <h3 v-else-if="viewer">{{ upcasedName() }}</h3>
+    <h3 v-if="viewer">{{ upcasedName() }}</h3>
     <h3 v-else>error</h3>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue, Prop } from "vue-property-decorator";
 import gql from "graphql-tag";
-import { GetViewer_viewer } from "./__generated__/GetViewer";
+import { ViewerFields } from "./__generated__/ViewerFields";
 
-@Component({
-  apollo: {
-    viewer: gql`
-      query GetViewer {
-        viewer {
-          id
-          login
-        }
-      }
-    `
+export const fragment = gql`
+  fragment ViewerFields on User {
+    id
+    login
   }
-})
+`;
+
+@Component({})
 export default class Viewer extends Vue {
-  private viewer?: GetViewer_viewer;
+  @Prop() viewer?: ViewerFields;
 
   upcasedName(): string {
     if (!this.viewer) return "";
